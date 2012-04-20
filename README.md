@@ -59,3 +59,48 @@ This is a rough first draft so let me know if you want to see any features
 - pass in the element to handle Error
 - can provide extra class or class prefix to be applied to elements
 
+## Image Gallery v0.1 ##
+
+include it in the file with:
+
+```javascript
+goog.require('ClosureWidget.ImageGallery');
+```
+
+also make sure you're using the G-Closure interface by having the file somewhere in your project directory (I recommend having a /lib folder with all these in)
+
+Create an Image Gallery like so:
+
+```javascript
+var imageGallery = new ClosureWidget.ImageGallery();
+var images = [
+{
+  medium: "URL/TO/MEDIUM.png",
+  small: "URL/TO/SMALL.png"
+},
+{
+  medium: "URL/TO/MEDIUM2.png",
+  small: "URL/TO/SMALL2.png"  
+}
+];
+imageGallery.addImages(images);
+imageGallery.createDom();
+imageGallery.render(ELEMENT);
+imageGallery.showImages();
+```
+
+you can also clear the gallery and reset with:
+
+```javascript
+imageGallery.images = [];
+imageGallery.addImages(moreImages);
+imageGallery.showImages();
+```
+
+gallery will show medium images at 600x400 with small images at 32x32
+
+### TODO ###
+
+- make sizes more flexible
+- add in controls overlaying medium image
+
