@@ -1,0 +1,96 @@
+@def IMAGEGALLERY_MAIN_WIDTH    600px;
+@def IMAGEGALLERY_MAIN_HEIGHT   400px;
+@def IMAGEGALLERY_PADDING       10px;
+@def IMAGEGALLERY_SMALL         32px;
+@def IMAGEGALLERY_SMALL_MARGIN  5px;
+@def IMAGEGALLERY_BAR_HEIGHT    60px;
+
+.imagegallery {
+  width: add(IMAGEGALLERY_PADDING,
+             IMAGEGALLERY_MAIN_WIDTH,
+             IMAGEGALLERY_PADDING);
+  height: add(IMAGEGALLERY_PADDING,
+              IMAGEGALLERY_MAIN_HEIGHT,
+              IMAGEGALLERY_PADDING,
+              IMAGEGALLERY_SMALL_MARGIN,
+              IMAGEGALLERY_SMALL,
+              IMAGEGALLERY_SMALL_MARGIN,
+              IMAGEGALLERY_PADDING
+              );
+  padding: IMAGEGALLERY_PADDING;
+  background: #000;
+  overflow: hidden;
+  /* remove if already using border-box */
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* remove if already using border-box */
+.imagegallery * {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.imagegallery-gallery {
+  margin-top: IMAGEGALLERY_PADDING;
+  height: add(IMAGEGALLERY_SMALL_MARGIN,
+              IMAGEGALLERY_SMALL,
+              IMAGEGALLERY_SMALL_MARGIN
+              );
+  position: relative;
+}
+
+.imagegallery-medium {
+  width: IMAGEGALLERY_MAIN_WIDTH;
+  height: IMAGEGALLERY_MAIN_HEIGHT;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-size: contain;
+}
+
+.imagegallery-small {
+  width: IMAGEGALLERY_SMALL;
+  height: IMAGEGALLERY_SMALL;
+  margin: IMAGEGALLERY_SMALL_MARGIN;
+  position: absolute;
+}
+
+.imagegallery-controls {
+  height: IMAGEGALLERY_BAR_HEIGHT;
+  position: absolute;
+  width: IMAGEGALLERY_MAIN_WIDTH;
+  opacity: 0.5;
+  background: #000;
+  top: sub(0px, IMAGEGALLERY_BAR_HEIGHT);
+}
+
+.imagegallery-display:hover .imagegallery-controls {
+  top: 0px;
+}
+
+.imagegallery-display {
+  height: IMAGEGALLERY_MAIN_HEIGHT;
+  width: IMAGEGALLERY_MAIN_WIDTH;
+  position: relative;
+  overflow: hidden;
+}
+
+.imagegallery-controls {
+  @mixin transition(all 0.5s ease-out);
+}
+.imagegallery-small {
+  @mixin transition(all 0.4s ease-out);
+}
+.imagegallery-small.hover {
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+}
+.imagegallery-gallery {
+  @mixin transition(all 0.5s ease-out);
+}
+.imagegallery-medium {
+  @mixin transition(all 0.7s linear);
+}

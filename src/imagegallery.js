@@ -13,6 +13,7 @@ ClosureWidget.ImageGallery = function() {
   goog.base(this);
   this.images = [];
   this.currentImage = 0;
+  this.controlContent = null;
 };
 goog.inherits(ClosureWidget.ImageGallery, goog.ui.Component);
 
@@ -35,21 +36,25 @@ ClosureWidget.ImageGallery.Sizes = {
  */
 ClosureWidget.ImageGallery.prototype.createDom = function() {
   this.element = $('<div/>').addClass(goog.getCssName('imagegallery'));
-  this.mainView = $('<div><div/></div>')
-      .css({
-        'height': ClosureWidget.ImageGallery.Sizes.MAIN_HEIGHT + 'px',
-        'width': ClosureWidget.ImageGallery.Sizes.MAIN_WIDTH + 'px',
-        'position': 'relative'
-      });
-  this.mainView.children()
+  this.mainView = $('<div/>')
+      .addClass(goog.getCssName('imagegallery-display'));
+  this.mainView.append(G('<div/>')
       .addClass(goog.getCssName('imagegallery-medium'))
       .css({
         'opacity': '1'
-      });
+      }));
   this.gallery = $('<div/>')
       .addClass(goog.getCssName('imagegallery-gallery'));
   this.element.append(this.mainView[0], this.gallery[0]);
   this.setElementInternal(this.element[0]);
+};
+
+
+/**
+ * @param {goog.dom.Appendable} content to put in control bar.
+ */
+ClosureWidget.ImageGallery.prototype.setControl = function(content) {
+  this.controlContent = content;
 };
 
 
@@ -78,7 +83,7 @@ ClosureWidget.ImageGallery.prototype.addImages = function(images) {
 /**
  * @return {{small: string, medium: string}} the current image.
  */
-ClosureWidget.ImageGallery.prototype.currentImage = function() {
+ClosureWidget.ImageGallery.prototype.getCurrentImage = function() {
   return this.images[this.currentImage];
 };
 
@@ -126,7 +131,8 @@ ClosureWidget.ImageGallery.prototype.showImages = function(opt_ind) {
           'left': (middle + (ind * small)) + 'px'
         });
     imgEl.click(function() {
-      this.scrollToIndex(ind);
+      if (img != this.getCurrentImage())
+        this.scrollToIndex(ind);
     }, this);
     imgEl.mouseover(function() {
       $(this).addClass(goog.getCssName('hover'));
@@ -171,6 +177,8 @@ ClosureWidget.ImageGallery.prototype.scrollToIndex = function(index) {
   this.mainView.children().css({
     'opacity': '0'
   });
+  largeImage.append(G('<div/>').addClass('imagegallery-controls')
+      .append(this.controlContent));
   this.mainView.append(largeImage);
   this.gallery.children().each(function(el, childInd) {
     $(el).css('left', (middle + (childInd * small) - (index * small)) + 'px');

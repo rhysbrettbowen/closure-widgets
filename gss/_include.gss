@@ -1,0 +1,134 @@
+/*
+to compile:
+java -jar closure-stylesheets/closure-stylesheets.jar --rename CLOSURE --output-renaming-map-format CLOSURE_COMPILED --output-renaming-map _build/renaming_map.js --allowed-non-standard-function -khtml-linear-gradient --allowed-non-standard-function progid:DXImageTransform.Microsoft.gradient --allowed-non-standard-function color-stop -o catchapp/styles/compiled/compiled.css catchapp/styles/*.gss
+
+to test
+java -jar closure-stylesheets/closure-stylesheets.jar --pretty-print --allowed-non-standard-function -khtml-linear-gradient --allowed-non-standard-function progid:DXImageTransform.Microsoft.gradient --allowed-non-standard-function color-stop -o catchapp/styles/compiled/compiled.css catchapp/styles/*.gss
+*/
+
+/* COLOURS */
+@def ORANGE             #E5852E;
+@def LIGHT_BLUE         #CFE6E8;
+@def DARK_BLUE          #A3C4CC;
+@def TEXT_COLOR         #555;
+@def GREY_BACK          #DDD;
+@def GREY_BORDER        #AAA;
+@def BLUE_LINK          #167AE2;
+/* FONT SIZES */
+@def LARGE_TEXT         16px;
+@def TEXT               14px;
+@def SMALL_TEXT         12px;
+/* SIZES */
+@def PAGE_WIDTH         1024px;
+
+/* MIXINS */
+@defmixin gradient(START, FINISH, FALLBACK) {
+    background-color: FALLBACK;
+
+    background-image: linear-gradient(top, START, FINISH);
+    /* @alternate */ background-image: -o-linear-gradient(top, START, FINISH);
+    /* @alternate */ background-image: -ms-linear-gradient(top, START, FINISH);
+    /* @alternate */ background-image: -moz-linear-gradient(top, START, FINISH);
+    /* @alternate */ background-image: -khtml-linear-gradient(top, START, FINISH);
+    /* @alternate */ background-image: -webkit-linear-gradient(top, START, FINISH);
+    /* @alternate */ background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(START), to(FINISH));
+
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=START, endColorstr=FINISH);
+}
+
+
+@defmixin rounded(SIZE) {
+    border-radius: SIZE;
+    -moz-border-radius: SIZE;
+    -khtml-border-radius: SIZE;
+    -webkit-border-radius: SIZE;
+}
+
+@defmixin roundedTopLeft(SIZE) {
+    border-top-left-radius: SIZE;
+    -moz-border-top-left-radius: SIZE;
+    -khtml-border-top-left-radius: SIZE;
+    -webkit-border-top-left-radius: SIZE;
+}
+
+@defmixin roundedTopRight(SIZE) {
+    border-top-right-radius: SIZE;
+    -moz-border-top-right-radius: SIZE;
+    -khtml-border-top-right-radius: SIZE;
+    -webkit-border-top-right-radius: SIZE;
+}
+
+@defmixin roundedBottomLeft(SIZE) {
+    border-bottom-left-radius: SIZE;
+    -moz-border-bottom-left-radius: SIZE;
+    -khtml-border-bottom-left-radius: SIZE;
+    -webkit-border-bottom-left-radius: SIZE;
+}
+
+@defmixin roundedBottomRight(SIZE) {
+    border-bottom-right-radius: SIZE;
+    -moz-border-bottom-right-radius: SIZE;
+    -khtml-border-bottom-right-radius: SIZE;
+    -webkit-border-bottom-right-radius: SIZE;
+}
+
+@defmixin inline-block() {
+    display: inline-block;
+    position: relative;
+}
+
+@defmixin transition(TRANS) {
+    -moz-transition: TRANS;
+    -ms-transition: TRANS;
+    -o-transition: TRANS;
+    -webkit-transition: TRANS;
+    transition: TRANS;
+}
+
+@defmixin image(IMG, HEIGHT, WIDTH) {
+    text-indent: -10000px;
+    background: url(IMG) no-repeat 100% 100%;
+    background-position: 50% 50%;
+    padding: HEIGHT 0 0;
+    width: WIDTH;
+}
+
+/* STYLING */
+.grey_gradient {
+    @mixin gradient(#FFF, #DDD, #EEE);
+}
+
+.small_text {
+    font-size: SMALL_TEXT;
+}
+
+/* BASE STYLES */
+h1 {
+    font-size: 24px;
+}
+h2 {
+    font-size: LARGE_TEXT;
+}
+
+button {
+    @mixin rounded(0);
+    @mixin gradient(#FFF, #DDD, #EEE);
+}
+
+a:hover {
+    color: ORANGE;
+    text-decoration: underline;
+}
+
+input[type="text"] {
+  font-size: TEXT;
+  height: 24px;
+  padding-left:3px;
+  border: 1px solid GREY_BORDER;
+  box-shadow: inset 0 2px 3px rgba(0,0,0,0.10)
+}
+
+input.invalid {
+  background: #FEE;
+  border: 1px solid #A55;
+}
