@@ -59,6 +59,26 @@ This is a rough first draft so let me know if you want to see any features
 - pass in the element to handle Error
 - can provide extra class or class prefix to be applied to elements
 
+## Simple Editor v0.1 ##
+
+include it in the file with:
+
+```javascript
+goog.require('ClosureWidget.SimpleEditor');
+```
+
+The editor will automagically change it's height to be in line with the text entered and also gives the option of autosaving.
+
+to instantiate you need to pass the constructor an object with options (if you wish to change the defaults):
+
+ - text : intial text default to blank string
+ - autosaveTime : time with no activity until save default to 3000
+ - autosave : false if you wish to stop autosaving default to true
+ - cssPrefix : string to prefix class with default none
+ - textPadding : extra white space under text default 30(px)
+
+you can listen for events like ClosureWidgets.SimpleEditor.EventType.SAVING and run your save function, then just call it's saved function when you are done which will fire the SAVED event. Also the SAVE event will let you know when you can save changes, you can call save() and pass in a function that should get the text to save it (don't forget to call .saved() when done).
+
 ## Image Gallery v0.1 ##
 
 include it in the file with:
