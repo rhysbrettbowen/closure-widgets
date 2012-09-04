@@ -45,10 +45,10 @@ ClosureWidget.SimpleEditor = function(opt_options) {
   /**
    * the prefix for css clasnames.
    * @private
-   * @type {[type]}
+   * @type {string}
    */
   this.cssPrefix_ = this.options_.cssPrefix ?
-      goog.getCssName(this.options_.cssPrefix) + '-' :
+      this.options_.cssPrefix + '-' :
       '';
 
   /**
@@ -60,7 +60,7 @@ ClosureWidget.SimpleEditor = function(opt_options) {
   /**
    * whether the text area is focused.
    * @private
-   * @type {Boolean}
+   * @type {boolean}
    */
   this.focused_ = false;
 
@@ -80,14 +80,14 @@ ClosureWidget.SimpleEditor = function(opt_options) {
   /**
    * if the text is savable.
    * @private
-   * @type {Boolean}
+   * @type {boolean}
    */
   this.canSave_ = false;
 
   /**
    * if the text is editable.
    * @private
-   * @type {Boolean}
+   * @type {boolean}
    */
   this.editable_ = false;
 
@@ -131,15 +131,15 @@ ClosureWidget.SimpleEditor.EventType = {
  */
 ClosureWidget.SimpleEditor.prototype.createDom = function() {
   var $textDisplayEl = $('<div>')
-      .addClass(goog.getCssName(this.cssPrefix_ + 'text-editor-display'));
+      .addClass(this.cssPrefix_ + goog.getCssName('text-editor-display'));
   this.wrapper = $('<div>')
-      .addClass(goog.getCssName(this.cssPrefix_ + 'text-editor-wrapper'))
+      .addClass(this.cssPrefix_ + goog.getCssName('text-editor-wrapper'))
       .css({
         'white-space': 'pre-wrap'
       })
       .text(this.text_);
   this.textArea = $('<textarea>')
-      .addClass(goog.getCssName(this.cssPrefix_ + 'text-editor-edit'))
+      .addClass(this.cssPrefix_ + goog.getCssName('text-editor-edit'))
       .val(this.text_);
   $textDisplayEl.append(this.wrapper, this.textHeight_);
   this.setElementInternal($textDisplayEl[0]);
@@ -171,7 +171,8 @@ ClosureWidget.SimpleEditor.prototype.onFocus_ = function() {
  * @private
  */
 ClosureWidget.SimpleEditor.prototype.onBlur_ = function() {
-  return;
+  if(!this.focused_)
+    return;
   this.focused_ = false;
   $$.clearWait(this.changeHandler_);
   this.handleChange_();
@@ -236,7 +237,7 @@ ClosureWidget.SimpleEditor.prototype.resizeTextArea = function() {
 /**
  * fires the saving event.
  * @param {Function=} opt_onSave function takes in the current text.
- * @return {Boolean} whether it was savable.
+ * @return {boolean} whether it was savable.
  */
 ClosureWidget.SimpleEditor.prototype.save = function(opt_onSave) {
   if (this.lastSave_ == this.text_ || !this.canSave_) {
@@ -248,7 +249,9 @@ ClosureWidget.SimpleEditor.prototype.save = function(opt_onSave) {
   this.autosave_.stop();
   if (opt_onSave)
     opt_onSave(this.text_);
-  this.dispatchEvent(ClosureWidget.SimpleEditor.EventType.SAVING);
+  this.dispatchEvent(new goog.events.Event(
+      ClosureWidget.SimpleEditor.EventType.SAVING, {text: this.text_}));
+  return true;
 };
 
 
@@ -312,6 +315,7 @@ ClosureWidget.SimpleEditor.prototype.setText = function(
   this.textArea.val(text);
   this.text = text;
   this.setInputSelection(start, end);
+  return true;
 };
 
 
@@ -330,22 +334,22 @@ ClosureWidget.SimpleEditor.prototype.getText = function() {
  * @param {number} end index of selection end.
  */
 ClosureWidget.SimpleEditor.prototype.setInputSelection = function(start, end) {
-  var el = this.textArea[0];
+    var el = this.textArea[0];
     var offsetToRangeCharacterMove = function(el, offset) {
         return offset - (el.value.slice(0, offset).split('\r\n').length - 1);
     };
     if (typeof el.selectionStart == 'number' &&
         typeof el.selectionEnd == 'number') {
-      el.selectionStart = startOffset;
-      el.selectionEnd = endOffset;
+      el.selectionStart = start;
+      el.selectionEnd = end;
     } else {
       var range = el.createTextRange();
-      var startCharMove = offsetToRangeCharacterMove(el, startOffset);
+      var startCharMove = offsetToRangeCharacterMove(el, start);
       range.collapse(true);
-      if (startOffset == endOffset) {
+      if (start == end) {
         range.move('character', startCharMove);
       } else {
-        range.moveEnd('character', offsetToRangeCharacterMove(el, endOffset));
+        range.moveEnd('character', offsetToRangeCharacterMove(el, end));
         range.moveStart('character', startCharMove);
       }
       range.select();
@@ -360,7 +364,7 @@ ClosureWidget.SimpleEditor.prototype.setInputSelection = function(start, end) {
 ClosureWidget.SimpleEditor.prototype.getInputSelection = function() {
   var start = 0, end = 0, normalizedValue, range,
     textInputRange, len, endRange;
-  var el = this.editor;
+  var el = this.textArea[0];
 
   if (typeof el.selectionStart == 'number' &&
       typeof el.selectionEnd == 'number') {
@@ -408,7 +412,7 @@ ClosureWidget.SimpleEditor.prototype.getInputSelection = function() {
 
 /**
  * whether the text is uneditable.
- * @return {Boolean} whether the text is uneditable.
+ * @return {boolean} whether the text is uneditable.
  */
 ClosureWidget.SimpleEditor.prototype.isUneditable = function() {
   return !this.editable_;
