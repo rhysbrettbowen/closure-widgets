@@ -35,16 +35,16 @@ ClosureWidget.ImageGallery.Sizes = {
  * @inheritDoc
  */
 ClosureWidget.ImageGallery.prototype.createDom = function() {
-  this.element = $('<div/>').addClass(goog.getCssName('imagegallery'));
+  this.element = $('<div/>').addClass(goog.getCssName('cw-imagegallery'));
   this.mainView = $('<div/>')
-      .addClass(goog.getCssName('imagegallery-display'));
+      .addClass(goog.getCssName('cw-imagegallery-display'));
   this.mainView.append(G('<div/>')
-      .addClass(goog.getCssName('imagegallery-medium'))
+      .addClass(goog.getCssName('cw-imagegallery-medium'))
       .css({
         'opacity': '1'
       }));
   this.gallery = $('<div/>')
-      .addClass(goog.getCssName('imagegallery-gallery'));
+      .addClass(goog.getCssName('cw-imagegallery-gallery'));
   this.element.append(this.mainView[0], this.gallery[0]);
   this.setElementInternal(this.element[0]);
 };
@@ -67,11 +67,11 @@ ClosureWidget.ImageGallery.prototype.enterDocument = function() {
 
 
 /**
- * @param {Array.<{small:string,medium:string}>} images models.
+ * @param {Array.<{small: string, medium: string}>} images models.
  */
 ClosureWidget.ImageGallery.prototype.addImages = function(images) {
   goog.array.extend(this.images, images);
-  goog.Timer.callOnce(function() {
+  $$.wait(function() {
     $(images).each(function(img) {
       var preload = new Image();
       preload.src = img.medium;
@@ -125,7 +125,7 @@ ClosureWidget.ImageGallery.prototype.showImages = function(opt_ind) {
   this.gallery.empty();
   $(this.images).each(function(img, ind) {
     var imgEl = $('<img/>')
-        .addClass(goog.getCssName('imagegallery-small'))
+        .addClass(goog.getCssName('cw-imagegallery-small'))
         .attr('src', img.small)
         .css({
           'left': (middle + (ind * small)) + 'px'
@@ -138,7 +138,7 @@ ClosureWidget.ImageGallery.prototype.showImages = function(opt_ind) {
       $(this).addClass(goog.getCssName('hover'));
     });
     imgEl.mouseout(function() {
-      goog.Timer.callOnce(function() {
+      $$.wait(function() {
         $(this).removeClass(goog.getCssName('hover'));
       }, 100, this);
     });
@@ -161,6 +161,8 @@ ClosureWidget.ImageGallery.prototype.showImages = function(opt_ind) {
  * @param {number} index of the image.
  */
 ClosureWidget.ImageGallery.prototype.scrollToIndex = function(index) {
+  if (!this.images.length)
+    return;
   if (index >= this.images.length) {
     index = 0;
   }
@@ -169,7 +171,7 @@ ClosureWidget.ImageGallery.prototype.scrollToIndex = function(index) {
       ClosureWidget.ImageGallery.Sizes.SMALL_WIDTH;
   var middle = ClosureWidget.ImageGallery.Sizes.MAIN_WIDTH / 2 - small / 2;
   var largeImage = $('<div/>')
-          .addClass(goog.getCssName('imagegallery-medium'));
+          .addClass(goog.getCssName('cw-imagegallery-medium'));
   largeImage.css({
     'background': "url('" + this.images[index].medium + "') no-repeat 50% 50%",
     'opacity': '0'
@@ -177,7 +179,8 @@ ClosureWidget.ImageGallery.prototype.scrollToIndex = function(index) {
   this.mainView.children().css({
     'opacity': '0'
   });
-  largeImage.append(G('<div/>').addClass('imagegallery-controls')
+  largeImage.append(G('<div/>')
+      .addClass(goog.getCssName('cw-imagegallery-controls'))
       .append(this.controlContent));
   this.mainView.append(largeImage);
   this.gallery.children().each(function(el, childInd) {
@@ -187,7 +190,7 @@ ClosureWidget.ImageGallery.prototype.scrollToIndex = function(index) {
   largeImage.css({
     'opacity': '1'
   });
-  goog.Timer.callOnce(function() {
+  $$.wait(function() {
     this.mainView.children().filter(':last', null, true).detach();
   }, 1000, this);
 };
