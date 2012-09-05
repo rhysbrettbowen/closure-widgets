@@ -249,8 +249,7 @@ ClosureWidget.SimpleEditor.prototype.save = function(opt_onSave) {
   this.autosave_.stop();
   if (opt_onSave)
     opt_onSave(this.text_);
-  this.dispatchEvent(new goog.events.Event(
-      ClosureWidget.SimpleEditor.EventType.SAVING, {text: this.text_}));
+  this.dispatchEvent(ClosureWidget.SimpleEditor.EventType.SAVING);
   return true;
 };
 
