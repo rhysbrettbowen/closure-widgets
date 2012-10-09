@@ -1,20 +1,45 @@
 goog.provide('ClosureWidget.Formalize');
 
-goog.require('G');
+goog.require('$');
+goog.require('$$');
+goog.require('ClosureWidget.Templates.Formalize');
 goog.require('goog.ui.Component');
+goog.require('goog.dom.TagName');
 
 
 
 /**
  * @constructor
+ * @param {Element} form the form element to decorate.
+ * @param {Object=} opt_options
  * @extends {goog.ui.Component}
  */
-ClosureWidget.Formalize = function() {
+ClosureWidget.Formalize = function(form, opt_options) {
   goog.base(this);
+  var options = {
+    validators: {},
+    error: goog.bind(function(err) {
+      var $error = $(ClosureWidget.Templates.Formalize.errorMessage(err, null));
+      this.errorHandlers_.push($(err.input).focus(function() {
+        $(this).removeClass(goog.getCssName('invalid'));
+      }), this);
+      this.errorHandlers_.push($error.click(function() {
+        err.input.focus();
+      }));
+      $(this.messageDiv)
+          .append($error);
+    }, this),
+    submit: $$.noop,
+    message: undefined
+  };
+  this.errorHandlers_ = [];
+  goog.object.extend(options, opt_options || {});
   this.textFields = null;
-  this.validation = {};
-  this.handleErr = G.noop;
-  this.submitFunction = G.noop;
+  this.validation = options.validators;
+  this.handleErr = options.error;
+  this.submitFn = options.submit;
+  this.messageDiv = options.message;
+  this.decorate(form);
 };
 goog.inherits(ClosureWidget.Formalize, goog.ui.Component);
 
@@ -25,8 +50,8 @@ goog.inherits(ClosureWidget.Formalize, goog.ui.Component);
 ClosureWidget.Formalize.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
-  this.textFields = G('input', this.getElement()).filter(function(el) {
-    return G(el).attr('type') == 'text';
+  this.textFields = $('input', this.getElement()).filter(function(el) {
+    return $(el).attr('type') == 'text';
   });
 
   // setup placehodlers if IE
@@ -35,11 +60,19 @@ ClosureWidget.Formalize.prototype.enterDocument = function() {
 
   // remove invalid class when change
   this.textFields.change(function() {
-    G(this).removeClass(goog.getCssName('invalid'));
+    $(this).removeClass(goog.getCssName('invalid'));
   });
 
-  G(this.getElement()).on(goog.events.EventType.SUBMIT,
+  $(this.getElement()).on(goog.events.EventType.SUBMIT,
       this.onSubmit_, this);
+};
+
+
+/**
+ * @inheritDoc
+ */
+ClosureWidget.Formalize.prototype.canDecorate = function(el) {
+  return el.tagName == goog.dom.TagName.FORM;
 };
 
 
@@ -53,10 +86,10 @@ ClosureWidget.Formalize.prototype.addValidation = function(name, fn) {
 
 
 /**
- * @param {Function} submitFn sunction to run on submit, receives event
+ * @param {Function} submitFn function to run on submit.
  */
 ClosureWidget.Formalize.prototype.submitFunction = function(submitFn) {
-  this.submitFunction = submitFn;
+  this.submitFn = submitFn;
 };
 
 
@@ -75,19 +108,22 @@ ClosureWidget.Formalize.prototype.handleError = function(fn) {
  */
 ClosureWidget.Formalize.prototype.onSubmit_ = function(e) {
   var validate = true;
+  $$.off(this.errorHandlers_);
+  this.errorHandlers_ = [];
+  $(this.messageDiv).empty();
   this.textFields.each(function(el) {
-    var Gel = G(el);
-    try {
-      if (this.validation[Gel.attr('name')])
-        this.validation[Gel.attr('name')](Gel.val());
-    } catch (err) {
+    var $el = $(el);
+    var err = {input: el};
+    if (this.validation[$el.attr('name')]) 
+      err.message = this.validation[$el.attr('name')]($el.val());
+    if(err) {
       validate = false;
-      Gel.addClass(goog.getCssName('invalid'));
-      this.handleErr(err.message, el);
+      $el.addClass(goog.getCssName('invalid'));
+      this.handleErr(err, el);
     }
   }, this);
-  if (validate) {
-    this.submitFunction(e);
+  if (validate && this.submitFn) {
+    this.submitFn(e);
   }
   e.preventDefault();
   e.stopPropagation();
@@ -101,26 +137,19 @@ ClosureWidget.Formalize.prototype.onSubmit_ = function(e) {
  */
 ClosureWidget.Formalize.prototype.setupPlaceholders = function() {
   this.textFields.each(function(el) {
-    var Gel = G(el);
-    var container = G('<div/>')
-        .css({
-          'position': 'relative'
-        })
-        .append(G('<label for"' + Gel.attr('name') + '">' +
-            Gel.attr('placeholder') + '</label>')
-                .css({
-                  'position': 'absolute',
-                  'left': '0px',
-                  'padding': '3px 0 0 9px'
-                })[0]);
-    Gel.replace(container[0]);
-    container.append(el);
-    Gel.focus(function() {
-      G(this).prev().hide();
-    });
-    Gel.blur(function() {
-      if (G(this).val() === '')
-        G(this).prev().show();
-    });
-  });
+    var $el = $(el);
+    $el.addClass(goog.getCssName('placeholder'));
+    $el.val($el.attr('placeholder'));
+    $el.focus(function() {
+      if ($el.hasClass(goog.getCssName('placeholder'))) {
+        $el.val('').removeClass(goog.getCssName('placeholder'));
+      }
+    }, this, this.getHandler());
+    $el.blur(function() {
+      if ($el.val() == '') {
+        $el.val($el.attr('placeholder'))
+            .addClass(goog.getCssName('placeholder'));
+      }
+    }, this, this.getHandler());
+  }, this);
 };
