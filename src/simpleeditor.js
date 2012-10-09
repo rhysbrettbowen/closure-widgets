@@ -22,8 +22,7 @@ ClosureWidget.SimpleEditor = function(opt_options) {
     text: '',
     autosaveTime: 3000,
     autosave: true,
-    cssPrefix: null,
-    textPadding: 30
+    cssPrefix: null
   };
 
   goog.object.extend(this.options_, opt_options || {});
@@ -33,7 +32,7 @@ ClosureWidget.SimpleEditor = function(opt_options) {
    * @private
    * @type {string}
    */
-  this.text_ = this.options_.text;
+  this.text_ = this.options_.text || '';
 
   /**
    * the test as of last save.
@@ -101,14 +100,19 @@ ClosureWidget.SimpleEditor = function(opt_options) {
     end: 0
   };
 
+  /**
+   * The width of the textarea.
+   * @private
+   * @type {number}
+   */
+  this.width_ = 0;
+
   this.textHeight_ = $('<div>')
       .css({
-        'position': 'fixed',
-        'width': '100%',
-        'left': '-10000px',
+        'position': 'absolute',
+        'left': '0',
         'box-sizing': 'border-box',
-        'padding': '5px',
-        'top': '0px',
+        'top': '-10000px',
         'border': 0,
         'white-space': 'pre-wrap',
         'word-wrap': 'break-word'
@@ -128,6 +132,7 @@ ClosureWidget.SimpleEditor.EventType = {
 
 
 /**
+ * @inheritDoc
  */
 ClosureWidget.SimpleEditor.prototype.createDom = function() {
   var $textDisplayEl = $('<div>')
@@ -140,21 +145,32 @@ ClosureWidget.SimpleEditor.prototype.createDom = function() {
       .text(this.text_);
   this.textArea = $('<textarea>')
       .addClass(this.cssPrefix_ + goog.getCssName('text-editor-edit'))
-      .val(this.text_);
-  $textDisplayEl.append(this.wrapper, this.textHeight_);
+      .val(this.text_)
+      .hide();
+
+  $textDisplayEl.append(this.wrapper, this.textArea, this.textHeight_);
   this.setElementInternal($textDisplayEl[0]);
 };
 
 
 /**
+ * @inheritDoc
  */
 ClosureWidget.SimpleEditor.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
+  this.options_.textPadding = this.options_.textPadding ||
+      parseFloat(this.textArea.css('line-height')) * 2;
+
   this.wrapper.click(this.handleClick_, this, this.getHandler());
+
+  this.textHeight_.css('padding', this.textArea.css('padding'));
+
 
   this.textArea.focus(this.onFocus_, this, this.getHandler());
   this.textArea.blur(this.onBlur_, this, this.getHandler());
+
+  this.width_ = this.textArea.width();
 };
 
 
@@ -184,7 +200,7 @@ ClosureWidget.SimpleEditor.prototype.onBlur_ = function() {
  * @private
  */
 ClosureWidget.SimpleEditor.prototype.handleChange_ = function() {
-  
+  this.width_ = this.textArea.width();
   var currentText = this.textArea.val();
   // if the text has changed
   if (this.text_ != currentText) {
@@ -226,6 +242,7 @@ ClosureWidget.SimpleEditor.prototype.handleClick_ = function() {
  */
 ClosureWidget.SimpleEditor.prototype.resizeTextArea = function() {
   this.textHeight_.text(this.text_.replace(/\r/g, ''));
+  this.textHeight_.width(this.width_);
   var newHeight = this.textHeight_.height();
   if (newHeight != this.editorHeight) {
     this.editorHeight = newHeight;
@@ -269,7 +286,8 @@ ClosureWidget.SimpleEditor.prototype.makeEditable = function() {
   if (this.editable_)
     return false;
   $(this.getElement()).addClass(goog.getCssName('editable'));
-  this.wrapper.replace(this.textArea);
+  this.wrapper.hide()
+  this.textArea.show();
   this.resizeTextArea();
   this.handleChange_();
   this.textArea[0].focus();
@@ -287,7 +305,8 @@ ClosureWidget.SimpleEditor.prototype.makeUneditable = function() {
   $(this.getElement()).removeClass(goog.getCssName('editable'));
   this.save();
   this.wrapper.text(this.text_);
-  this.textArea.replace(this.wrapper);
+  this.textArea.hide();
+  this.wrapper.show();
   this.editable_ = false;
   $$.clearWait(this.changeHandler_);
   return true;
@@ -311,9 +330,12 @@ ClosureWidget.SimpleEditor.prototype.setText = function(
   var start = opt_start || this.index_.start;
   var end = opt_end || this.index_.end;
 
-  this.textArea.val(text);
-  this.text = text;
-  this.setInputSelection(start, end);
+  this.text_ = text;
+  if(this.getElement()) {
+    this.textArea.val(text);
+    this.setInputSelection(start, end);
+    this.wrapper.text(text);
+  };
   return true;
 };
 
