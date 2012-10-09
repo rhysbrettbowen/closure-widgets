@@ -174,6 +174,7 @@ ClosureWidget.ImageGallery.prototype.scrollToIndex = function(index) {
           .addClass(goog.getCssName('cw-imagegallery-medium'));
   largeImage.css({
     'background': "url('" + this.images[index].medium + "') no-repeat 50% 50%",
+    'background-size': 'contain',
     'opacity': '0'
   });
   this.mainView.children().css({
