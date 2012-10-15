@@ -23,8 +23,11 @@ ClosureWidget.Formalize = function(form, opt_options) {
       this.errorHandlers_.push($(err.input).focus(function() {
         $(this).removeClass(goog.getCssName('invalid'));
       }), this);
-      this.errorHandlers_.push($error.click(function() {
-        err.input.focus();
+      this.errorHandlers_.push($error.click(function(e) {
+        if (!$(e.target).hasClass(goog.getCssName('cw-close')))
+          err.input.focus();
+        else
+          $(e.target).parent().removeNode(); 
       }));
       $(this.messageDiv)
           .append($error);
@@ -64,7 +67,8 @@ ClosureWidget.Formalize.prototype.enterDocument = function() {
   });
 
   $(this.getElement()).on(goog.events.EventType.SUBMIT,
-      this.onSubmit_, this);
+      this.onSubmit_, this, this.getHandler());
+
 };
 
 
@@ -116,14 +120,17 @@ ClosureWidget.Formalize.prototype.onSubmit_ = function(e) {
     var err = {input: el};
     if (this.validation[$el.attr('name')]) 
       err.message = this.validation[$el.attr('name')]($el.val());
-    if(err) {
+    if(err.message) {
       validate = false;
       $el.addClass(goog.getCssName('invalid'));
       this.handleErr(err, el);
     }
   }, this);
   if (validate && this.submitFn) {
-    this.submitFn(e);
+    this.submitFn(goog.array.reduce(this.textFields, function(obj, field) {
+      obj[$(field).attr('name')] = $(field).val();
+      return obj;
+    }, {}));
   }
   e.preventDefault();
   e.stopPropagation();

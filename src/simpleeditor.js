@@ -241,6 +241,7 @@ ClosureWidget.SimpleEditor.prototype.handleClick_ = function() {
  * resize the text area.
  */
 ClosureWidget.SimpleEditor.prototype.resizeTextArea = function() {
+  this.width_ = this.textArea.width();
   this.textHeight_.text(this.text_.replace(/\r/g, ''));
   this.textHeight_.width(this.width_);
   var newHeight = this.textHeight_.height();
@@ -286,9 +287,9 @@ ClosureWidget.SimpleEditor.prototype.makeEditable = function() {
   if (this.editable_)
     return false;
   $(this.getElement()).addClass(goog.getCssName('editable'));
-  this.wrapper.hide()
-  this.textArea.show();
+  this.wrapper.hide();
   this.resizeTextArea();
+  this.textArea.show();
   this.handleChange_();
   this.textArea[0].focus();
   this.editable_ = true;
