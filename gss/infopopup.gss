@@ -1,0 +1,3 @@
+.cw-popover {
+  position: absolute;
+}
