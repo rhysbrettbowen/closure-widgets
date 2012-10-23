@@ -1,0 +1,85 @@
+.modal-dialog-bg {
+    background: #666;
+    left: 0;
+    position: fixed;
+    top: 0;
+    z-index:1000;
+}
+.modal-dialog {
+    box-shadow: 0 0 25px 0 #000;
+    width: 430px;
+    background: transparent;
+    color: black;
+    position: absolute;
+    z-index:9999999999;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px; 
+}
+.modal-dialog-title {
+
+    background: #FFF;
+    color: #474747;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: bold;
+    padding: 8px 31px 8px 8px;
+    position: relative;
+    border-bottom: 1px solid #888;
+    -webkit-border-top-left-radius: 5px;
+    border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    border-top-right-radius: 5px;
+}
+.modal-dialog-title-close{
+    background-position: top;
+    background: #FFF url(/webclient/images/closeoverlay.png) no-repeat;
+    cursor: default;
+    height: 12px;
+    position: absolute;
+    right: 11px;
+    top: 11px;
+    width: 12px;
+    vertical-align: middle;
+}
+.modal-dialog-content {
+    background: #FFF;
+    padding: 10px;
+}
+.modal-dialog-buttons {
+background-color: #DDD;
+padding: 8px;
+border-top: 1px solid #AAA;
+height: 30px;
+text-align: right;
+-webkit-border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+.modal-dialog-buttons button {
+    background: #EEE;
+    border: 1px solid #999;
+    /* @alternate */background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FFF), to(#DDD));
+    /* @alternate */background: -moz-linear-gradient(top,  #FFF,  #DDD);
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='#FFFFFF', endColorstr='#DDDDDD');
+    font-size: 12px;
+    font-family: museo-sans, Arial, sans-serif;
+    padding: 6px 10px;
+}
+
+.modal-dialog-buttons button:focus {
+    outline:none;
+}
+.moreinfo-header {
+    position: relative;
+    cursor: pointer;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+.moreinfo-header:hover {
+    text-decoration: underline;
+}
+.moreinfo {
+     margin: 10px;
+}

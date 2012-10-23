@@ -49,7 +49,7 @@ ClosureWidget.DropDown.prototype.setClassForMenu_ = function(menuEl) {
       .children().each(function(el) {
         var $children = $(el).children();
         if($children.length) {
-          var $menu = $('<div>').addClass('goog-submenu');
+          var $menu = $('<div>').addClass(goog.getCssName('goog-submenu'));
           $menu.append($children);
           $(el).append($menu);
           this.setClassForMenu_($menu[0]);
@@ -88,8 +88,8 @@ ClosureWidget.DropDown.prototype.objectToDom_ = function(obj) {
   return el[0];
 };
 
-ClosureWidget.DropDown.prototype.add = function(name, func) {
-  this.handlers.push(func);
+ClosureWidget.DropDown.prototype.add = function(name, func, opt_handler) {
+  this.handlers.push(goog.bind(func, opt_handler));
   $(this.currentBase).append(
       $("<div>").addClass(goog.getCssName("goog-menuitem"))
           .html(name).data('act', this.handlers.length));

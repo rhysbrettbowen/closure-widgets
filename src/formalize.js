@@ -55,7 +55,7 @@ ClosureWidget.Formalize.prototype.enterDocument = function() {
 
   this.textFields = $('input', this.getElement()).filter(function(el) {
     return $(el).attr('type') == 'text';
-  });
+  }).add($('textarea'), this.getElement());
 
   // setup placehodlers if IE
   if (goog.userAgent.IE)
@@ -92,8 +92,8 @@ ClosureWidget.Formalize.prototype.addValidation = function(name, fn) {
 /**
  * @param {Function} submitFn function to run on submit.
  */
-ClosureWidget.Formalize.prototype.submitFunction = function(submitFn) {
-  this.submitFn = submitFn;
+ClosureWidget.Formalize.prototype.submitFunction = function(submitFn, opt_handler) {
+  this.submitFn = goog.bind(submitFn, opt_handler);
 };
 
 

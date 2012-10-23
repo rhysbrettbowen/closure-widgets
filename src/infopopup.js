@@ -1,4 +1,4 @@
-goog.provide('ClosureWidgets.InfoPopup');
+goog.provide('ClosureWidget.InfoPopup');
 
 goog.require('goog.ui.Component');
 goog.require('ClosureWidget.Template.InfoPopup');
@@ -11,7 +11,7 @@ goog.require('G');
  * @extends {goog.ui.Component}
  * @param {Object=} opt_options
  */
-ClosureWidgets.InfoPopup = function(opt_options) {
+ClosureWidget.InfoPopup = function(opt_options) {
     goog.base(this);
     this.$popupHtml = $(ClosureWidget.Template.InfoPopup.main(null, null))
         .hide();
@@ -20,16 +20,18 @@ ClosureWidgets.InfoPopup = function(opt_options) {
     this.anchor_ = null;
     this.lastShow = -1;
     this.lastHide = -1;
+    this.shown = false;
 };
-goog.inherits(ClosureWidgets.InfoPopup, goog.ui.Component);
+goog.inherits(ClosureWidget.InfoPopup, goog.ui.Component);
 
-ClosureWidgets.InfoPopup.prototype.decorateInternal = function(el) {
-  this.$popupHtml.appendTo(document.body);
+ClosureWidget.InfoPopup.prototype.decorateInternal = function(el) {
   this.anchor_ = el;
   goog.base(this, 'decorateInternal', this.$popupHtml[0]);
 };
 
-ClosureWidgets.InfoPopup.prototype.enterDocument = function() {
+ClosureWidget.InfoPopup.prototype.enterDocument = function() {
+
+  
   goog.base(this, 'enterDocument');
 
   $(this.anchor_).click(goog.bind(this.setVisible, this, true),
@@ -37,24 +39,24 @@ ClosureWidgets.InfoPopup.prototype.enterDocument = function() {
 };
 
 
-ClosureWidgets.InfoPopup.prototype.getContentElement = function() {
+ClosureWidget.InfoPopup.prototype.getContentElement = function() {
   return this.$popupHtml.find(goog.getCssName('-cw-container'))[0];
 };
 
 
-ClosureWidgets.InfoPopup.prototype.setContent = function(html) {
+ClosureWidget.InfoPopup.prototype.setContent = function(html) {
   $(goog.getCssName('-cw-container'), this.getElement())
       .empty()
       .append($(html));
 };
 
 
-ClosureWidgets.InfoPopup.prototype.isVisible = function() {
+ClosureWidget.InfoPopup.prototype.isVisible = function() {
   return this.$popupHtml.visible();
 }
 
 
-ClosureWidgets.InfoPopup.prototype.setVisible = function(visible) {
+ClosureWidget.InfoPopup.prototype.setVisible = function(visible) {
   if (visible)
     this.show();
   else
@@ -64,7 +66,7 @@ ClosureWidgets.InfoPopup.prototype.setVisible = function(visible) {
 
 /**
  */
-ClosureWidgets.InfoPopup.prototype.reposition = function() {
+ClosureWidget.InfoPopup.prototype.reposition = function() {
   if(!this.anchor_)
     return;
   var rect = $(this.anchor_).position();
@@ -77,7 +79,10 @@ ClosureWidgets.InfoPopup.prototype.reposition = function() {
 
 /**
  */
-ClosureWidgets.InfoPopup.prototype.show = function() {
+ClosureWidget.InfoPopup.prototype.show = function() {
+  if(!this.shown)
+    this.$popupHtml.appendTo(document.body);
+  this.shown = true;
   if (this.isVisible())
     return;
   this.reposition();
@@ -93,7 +98,7 @@ ClosureWidgets.InfoPopup.prototype.show = function() {
 
 /**
  */
-ClosureWidgets.InfoPopup.prototype.hide = function() {
+ClosureWidget.InfoPopup.prototype.hide = function() {
   if(!this.isVisible())
     return;
   $$.off(this.close_);
