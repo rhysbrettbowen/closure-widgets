@@ -1,3 +1,23 @@
+/*******************************************************************************
+********************************************************************************
+**                                                                            **
+**  Copyright (c) 2012 Catch.com, Inc.                                        **
+**                                                                            **
+**  Licensed under the Apache License, Version 2.0 (the "License");           **
+**  you may not use this file except in compliance with the License.          **
+**  You may obtain a copy of the License at                                   **
+**                                                                            **
+**      http://www.apache.org/licenses/LICENSE-2.0                            **
+**                                                                            **
+**  Unless required by applicable law or agreed to in writing, software       **
+**  distributed under the License is distributed on an "AS IS" BASIS,         **
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  **
+**  See the License for the specific language governing permissions and       **
+**  limitations under the License.                                            **
+**                                                                            **
+********************************************************************************
+*******************************************************************************/
+
 .modal-dialog-bg {
     background: #666;
     left: 0;
@@ -33,7 +53,7 @@
 }
 .modal-dialog-title-close{
     background-position: top;
-    background: #FFF url(/webclient/images/closeoverlay.png) no-repeat;
+    background: #FFF url(/webclientv4/images/closeoverlay.png) no-repeat;
     cursor: default;
     height: 12px;
     position: absolute;
@@ -50,25 +70,14 @@
 background-color: #DDD;
 padding: 8px;
 border-top: 1px solid #AAA;
-height: 30px;
 text-align: right;
 -webkit-border-bottom-left-radius: 5px;
     border-bottom-left-radius: 5px;
     -webkit-border-bottom-right-radius: 5px;
     border-bottom-right-radius: 5px;
 }
-.modal-dialog-buttons button {
-    background: #EEE;
-    border: 1px solid #999;
-    /* @alternate */background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FFF), to(#DDD));
-    /* @alternate */background: -moz-linear-gradient(top,  #FFF,  #DDD);
-    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='#FFFFFF', endColorstr='#DDDDDD');
-    font-size: 12px;
-    font-family: museo-sans, Arial, sans-serif;
-    padding: 6px 10px;
-}
-
-.modal-dialog-buttons button:focus {
+.modal-dialog-buttons button,
+.modal-dialog-buttons button:active {
     outline:none;
 }
 .moreinfo-header {

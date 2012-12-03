@@ -77,7 +77,7 @@ to instantiate you need to pass the constructor an object with options (if you w
  - cssPrefix : string to prefix class with default none
  - textPadding : extra white space under text default 30(px)
 
-you can listen for events like ClosureWidgets.SimpleEditor.EventType.SAVING and run your save function, then just call it's saved function when you are done which will fire the SAVED event. Also the SAVE event will let you know when you can save changes, you can call save() and pass in a function that should get the text to save it (don't forget to call .saved() when done).
+you can listen for events like ClosureWidget.SimpleEditor.EventType.SAVING and run your save function, then just call it's saved function when you are done which will fire the SAVED event. Also the SAVE event will let you know when you can save changes, you can call save() and pass in a function that should get the text to save it (don't forget to call .saved() when done).
 
 ## Image Gallery v0.1 ##
 

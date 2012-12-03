@@ -1,3 +1,23 @@
+/*******************************************************************************
+********************************************************************************
+**                                                                            **
+**  Copyright (c) 2012 Catch.com, Inc.                                        **
+**                                                                            **
+**  Licensed under the Apache License, Version 2.0 (the "License");           **
+**  you may not use this file except in compliance with the License.          **
+**  You may obtain a copy of the License at                                   **
+**                                                                            **
+**      http://www.apache.org/licenses/LICENSE-2.0                            **
+**                                                                            **
+**  Unless required by applicable law or agreed to in writing, software       **
+**  distributed under the License is distributed on an "AS IS" BASIS,         **
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  **
+**  See the License for the specific language governing permissions and       **
+**  limitations under the License.                                            **
+**                                                                            **
+********************************************************************************
+*******************************************************************************/
+
 goog.provide('ClosureWidget.SimpleEditor');
 
 goog.require('goog.async.Delay');
@@ -56,12 +76,16 @@ ClosureWidget.SimpleEditor = function(opt_options) {
    */
   this.changeHandler_ = null;
 
+  this.justOpened_ = false;
+
   /**
    * whether the text area is focused.
    * @private
    * @type {boolean}
    */
   this.focused_ = false;
+
+  this.blurListen_ = null;
 
   /**
    * autosaving
@@ -106,6 +130,8 @@ ClosureWidget.SimpleEditor = function(opt_options) {
    * @type {number}
    */
   this.width_ = 0;
+
+  this.registered_ = [];
 
   this.textHeight_ = $('<div>')
       .css({
@@ -159,7 +185,8 @@ ClosureWidget.SimpleEditor.prototype.createDom = function() {
 ClosureWidget.SimpleEditor.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
-  this.options_.textPadding = this.options_.textPadding ||
+  this.options_.textPadding = goog.isDef(this.options_.textPadding) ?
+      this.options_.textPadding :
       parseFloat(this.textArea.css('line-height')) * 2;
 
   this.wrapper.click(this.handleClick_, this, this.getHandler());
@@ -168,9 +195,14 @@ ClosureWidget.SimpleEditor.prototype.enterDocument = function() {
 
 
   this.textArea.focus(this.onFocus_, this, this.getHandler());
-  this.textArea.blur(this.onBlur_, this, this.getHandler());
+
+  // this.textArea.blur(this.onBlur_, this, this.getHandler());
 
   this.width_ = this.textArea.width();
+};
+
+ClosureWidget.SimpleEditor.prototype.registerElement = function(el) {
+  this.registered_.push(el);
 };
 
 
@@ -179,20 +211,37 @@ ClosureWidget.SimpleEditor.prototype.enterDocument = function() {
  */
 ClosureWidget.SimpleEditor.prototype.onFocus_ = function() {
   this.focused_ = true;
+  if (!this.blurListen_)
+    this.blurListen_ = 
+        $(document.body).click(this.outClick_, this, this.getHandler());
   this.changeHandler_ = $$.wait(this.handleChange_, 200, this);
 };
 
+ClosureWidget.SimpleEditor.prototype.outClick_ = function(e) {
+  if (e.target == this.textArea[0] ||
+      e.target == this.wrapper[0])
+    return;
+  if (goog.array.find(this.registered_, function(el) {
+    return $$.contains(el, e.target);
+  }))
+    return;
+  this.onBlur_();
+};
 
 /**
  * @private
  */
 ClosureWidget.SimpleEditor.prototype.onBlur_ = function() {
-  if(!this.focused_)
+  if(!this.focused_ || this.justOpened_)
     return;
+  if (this.blurListen_)
+    this.blurListen_.off();
+  this.blurListen_ = null;
   this.focused_ = false;
   $$.clearWait(this.changeHandler_);
   this.handleChange_();
   this.makeUneditable();
+  return true;
 };
 
 
@@ -293,6 +342,8 @@ ClosureWidget.SimpleEditor.prototype.makeEditable = function() {
   this.handleChange_();
   this.textArea[0].focus();
   this.editable_ = true;
+  this.justOpened_ = true;
+  $$.wait(function(){this.justOpened_ = false;}, 20, this);
   return true;
 };
 
@@ -327,6 +378,19 @@ ClosureWidget.SimpleEditor.prototype.setText = function(
   // don't change text if editable
   if (this.editable_)
     return false;
+
+  return this.setText_(text, opt_start, opt_end);
+};
+
+/**
+ * sets the text if not editable
+ * @param {string} text to set.
+ * @param {number=} opt_start the index to set the selection to start.
+ * @param {number=} opt_end the index to end the selection at.
+ * @return {boolean} if setting is succesful.
+ */
+ClosureWidget.SimpleEditor.prototype.setText_ = function(
+    text, opt_start, opt_end) {
 
   var start = opt_start || this.index_.start;
   var end = opt_end || this.index_.end;

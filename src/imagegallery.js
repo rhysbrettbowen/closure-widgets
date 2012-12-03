@@ -1,3 +1,23 @@
+/*******************************************************************************
+********************************************************************************
+**                                                                            **
+**  Copyright (c) 2012 Catch.com, Inc.                                        **
+**                                                                            **
+**  Licensed under the Apache License, Version 2.0 (the "License");           **
+**  you may not use this file except in compliance with the License.          **
+**  You may obtain a copy of the License at                                   **
+**                                                                            **
+**      http://www.apache.org/licenses/LICENSE-2.0                            **
+**                                                                            **
+**  Unless required by applicable law or agreed to in writing, software       **
+**  distributed under the License is distributed on an "AS IS" BASIS,         **
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  **
+**  See the License for the specific language governing permissions and       **
+**  limitations under the License.                                            **
+**                                                                            **
+********************************************************************************
+*******************************************************************************/
+
 goog.provide('ClosureWidget.ImageGallery');
 
 goog.require('G');
@@ -24,10 +44,10 @@ goog.inherits(ClosureWidget.ImageGallery, goog.ui.Component);
 ClosureWidget.ImageGallery.Sizes = {
   MAIN_WIDTH: 600,
   MAIN_HEIGHT: 400,
-  SMALL_WIDTH: 32,
-  SMALL_HEIGHT: 32,
-  SMALL_MARGIN: 5,
-  PADDING: 10
+  SMALL_WIDTH: 48,
+  SMALL_HEIGHT: 48,
+  SMALL_MARGIN: 6,
+  PADDING: 12
 };
 
 
@@ -38,11 +58,17 @@ ClosureWidget.ImageGallery.prototype.createDom = function() {
   this.element = $('<div/>').addClass(goog.getCssName('cw-imagegallery'));
   this.mainView = $('<div/>')
       .addClass(goog.getCssName('cw-imagegallery-display'));
-  this.mainView.append(G('<div/>')
-      .addClass(goog.getCssName('cw-imagegallery-medium'))
-      .css({
-        'opacity': '1'
-      }));
+  this.mainView.append(
+      $('<div>')
+          .addClass(goog.getCssName('cw-imagegallery-cell'))
+          .append(
+              G('<img>')
+                  .addClass(goog.getCssName('cw-imagegallery-medium'))
+              .css({
+                'opacity': '1'
+              })
+          )
+      );
   this.gallery = $('<div/>')
       .addClass(goog.getCssName('cw-imagegallery-gallery'));
   this.element.append(this.mainView[0], this.gallery[0]);
@@ -63,20 +89,29 @@ ClosureWidget.ImageGallery.prototype.setControl = function(content) {
  */
 ClosureWidget.ImageGallery.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
+
+  this.element.click(function(e) {
+    if($(e.target).hasClass(goog.getCssName('cw-imagegallery-cell')))
+      $(this.element).hide();
+  }, this);
+
+  this.mainView.click(function() {
+    this.scrollToIndex((this.currentImage + 1) % this.images.length);
+  }, this);
 };
 
 
 /**
- * @param {Array.<{small: string, medium: string}>} images models.
+ * @param {Array.<{small:string,medium:string}>} images models.
  */
 ClosureWidget.ImageGallery.prototype.addImages = function(images) {
   goog.array.extend(this.images, images);
-  $$.wait(function() {
-    $(images).each(function(img) {
-      var preload = new Image();
-      preload.src = img.medium;
-    });
-  }, 15);
+  // $$.wait(function() {
+  //   $(images).each(function(img) {
+  //     var preload = new Image();
+  //     preload.src = img.medium;
+  //   });
+  // }, 15);
 };
 
 
@@ -119,6 +154,7 @@ ClosureWidget.ImageGallery.prototype.clear = function() {
  * @param {number=} opt_ind to scroll to.
  */
 ClosureWidget.ImageGallery.prototype.showImages = function(opt_ind) {
+  ClosureWidget.ImageGallery.Sizes.MAIN_WIDTH = this.gallery.width();
   var small = ClosureWidget.ImageGallery.Sizes.SMALL_MARGIN * 2 +
       ClosureWidget.ImageGallery.Sizes.SMALL_WIDTH;
   var middle = ClosureWidget.ImageGallery.Sizes.MAIN_WIDTH / 2 - small / 2;
@@ -146,12 +182,7 @@ ClosureWidget.ImageGallery.prototype.showImages = function(opt_ind) {
   }, this);
   this.scrollToIndex(opt_ind || 0);
   if (this.images.length)
-    this.mainView.children().css({
-      'background': "url('" +
-          this.images[0].medium +
-          "') no-repeat 50% 50%",
-      'background-size': 'contain'
-    });
+    this.mainView.children().attr('src', this.images[0].medium);
 };
 
 
@@ -166,34 +197,43 @@ ClosureWidget.ImageGallery.prototype.scrollToIndex = function(index) {
   if (index >= this.images.length) {
     index = 0;
   }
+  ClosureWidget.ImageGallery.Sizes.MAIN_WIDTH = this.gallery.width();
   this.currentImage = index;
-  var small = ClosureWidget.ImageGallery.Sizes.SMALL_MARGIN * 2 +
+  var small = ClosureWidget.ImageGallery.Sizes.SMALL_MARGIN * 4 +
       ClosureWidget.ImageGallery.Sizes.SMALL_WIDTH;
   var middle = ClosureWidget.ImageGallery.Sizes.MAIN_WIDTH / 2 - small / 2;
-  var largeImage = $('<div/>')
-          .addClass(goog.getCssName('cw-imagegallery-medium'));
-  largeImage.css({
-    'background': "url('" + this.images[index].medium + "') no-repeat 50% 50%",
-    'background-size': 'contain',
+  var container = $('<div>')
+          .addClass(goog.getCssName('cw-imagegallery-cell'))
+          .append(
+              G('<img>')
+                  .addClass(goog.getCssName('cw-imagegallery-medium'))
+          );
+  var largeImage = container.children();
+  largeImage
+      .attr('src', this.images[index].medium)
+      .css('opacity', '0');
+  this.mainView.children().children().css({
     'opacity': '0'
-  });
-  this.mainView.children().css({
-    'opacity': '0'
-  });
-  largeImage.append(G('<div/>')
-      .addClass(goog.getCssName('cw-imagegallery-controls'))
-      .append(this.controlContent));
-  this.mainView.append(largeImage);
-  this.gallery.children().each(function(el, childInd) {
-    $(el).css('left', (middle + (childInd * small) - (index * small)) + 'px');
-  });
-  largeImage.top();
-  largeImage.css({
-    'opacity': '1'
   });
   $$.wait(function() {
-    this.mainView.children().filter(':last', null, true).detach();
-  }, 1000, this);
+    this.mainView.empty();
+    this.mainView.append(container);
+    largeImage.top();
+    largeImage.css({
+      'opacity': '1'
+    });
+  }, 500, this);
+
+  
+  this.gallery.children().each(function(el, childInd) {
+    $(el)
+        .toggleClass(goog.getCssName('active'), function() {
+          return childInd == index;
+        })
+        .css('left', (middle + (childInd * small) - (index * small)) + 'px');
+  });
+
+
 };
 
 

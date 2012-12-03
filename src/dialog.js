@@ -1,3 +1,23 @@
+/*******************************************************************************
+********************************************************************************
+**                                                                            **
+**  Copyright (c) 2012 Catch.com, Inc.                                        **
+**                                                                            **
+**  Licensed under the Apache License, Version 2.0 (the "License");           **
+**  you may not use this file except in compliance with the License.          **
+**  You may obtain a copy of the License at                                   **
+**                                                                            **
+**      http://www.apache.org/licenses/LICENSE-2.0                            **
+**                                                                            **
+**  Unless required by applicable law or agreed to in writing, software       **
+**  distributed under the License is distributed on an "AS IS" BASIS,         **
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  **
+**  See the License for the specific language governing permissions and       **
+**  limitations under the License.                                            **
+**                                                                            **
+********************************************************************************
+*******************************************************************************/
+
 goog.provide('ClosureWidget.Dialog');
 
 goog.require('ClosureWidget.template.Dialog');
@@ -56,6 +76,15 @@ ClosureWidget.Dialog.prototype.setVisible = function(bool) {
     goog.base(this, 'setVisible', bool);
 };
 
+ClosureWidget.Dialog.prototype.createDom = function() {
+    goog.base(this, 'createDom');
+    $('-modal-dialog-buttons', this.getElement()).find('button')
+        .addClass(goog.getCssName('button'));
+    if (this.component) {
+        this.component.render(this.contentEl_);
+    }
+};
+
 /**
  * @param {string} content for an error box.
  * @param {string=} opt_moreInfo string with more information or null.
@@ -85,7 +114,7 @@ ClosureWidget.Dialog.InvalidInput = function(content, opt_moreInfo) {
 
 /**
  * @param {string} title of dialog.
- * @param {string} content of dialog.
+ * @param {string|goog.ui.Component} content of dialog.
  * @param {Array.<string>} buttons names of buttons.
  * @param {Object=} opt_handlers map on button names to functions.
  * @param {string=} opt_doNotShow id, if it has been set by the user then the
@@ -99,17 +128,24 @@ ClosureWidget.Dialog.create = function(title, content, buttons, opt_handlers, op
             opt_handlers[buttons[0]]();
         return;
     }
+    if (!goog.isString(content)) {
+        dialog.content_ = '';
+        dialog.component = content;
+        dialog.addChild(dialog.component);
+        dialog.component.render(dialog.contentEl_);
+    } else {
+        if (opt_moreInfo) {
+            content += "<div class='" + goog.getCssName('moreinfo') + "'><div class='" + goog.getCssName('moreinfo-header') + "'>" + ClosureWidget.template.Dialog.moreInformation(null, null) + "</div><div class='" + goog.getCssName('moreinfo-content') + "'>" + opt_moreInfo + '</div></div>';
+        }
+        if (opt_doNotShow) {
+            content += '<br><br><form><div class="' + goog.getCssName('checkbox-container') + '"><input type="checkbox" class="' + goog.getCssName('dialog-checkbox') + '" value="' + opt_doNotShow + '" id="do_not_show"/><label for="do_not_show"></label></div> <small>' + ClosureWidget.template.Dialog.doNotShow(null, null) + '</small></form>';
+        }
+        dialog.setContent(content);
+        if (opt_moreInfo) {
+            var moreInfo = new goog.ui.Zippy(goog.dom.getElementByClass(goog.getCssName('moreinfo-header'), dialog.getContentElement()), goog.dom.getElementByClass(goog.getCssName('moreinfo-content'), dialog.getContentElement()));
+        }
+    }
     dialog.setTitle(title);
-    if (opt_moreInfo) {
-        content += "<div class='" + goog.getCssName('moreinfo') + "'><div class='" + goog.getCssName('moreinfo-header') + "'>" + ClosureWidget.template.Dialog.moreInformation(null, null) + "</div><div class='" + goog.getCssName('moreinfo-content') + "'>" + opt_moreInfo + '</div></div>';
-    }
-    if (opt_doNotShow) {
-        content += '<br><br><form><input type="checkbox" class="' + goog.getCssName('dialog-checkbox') + '" value="' + opt_doNotShow + '" id="do_not_show"/><label for="do_not_show"></label> <small>' + ClosureWidget.template.Dialog.doNotShow(null, null) + '</small></form>';
-    }
-    dialog.setContent(content);
-    if (opt_moreInfo) {
-        var moreInfo = new goog.ui.Zippy(goog.dom.getElementByClass(goog.getCssName('moreinfo-header'), dialog.getContentElement()), goog.dom.getElementByClass(goog.getCssName('moreinfo-content'), dialog.getContentElement()));
-    }
     dialog.diagButtons_ = buttons || [];
     dialog.diagHandlers_ = opt_handlers || {};
     dialog.setVisible(true);
@@ -126,6 +162,7 @@ ClosureWidget.Dialog.create = function(title, content, buttons, opt_handlers, op
                         2592000);
             });
     }
+    return dialog;
 };
 
 

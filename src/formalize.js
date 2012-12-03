@@ -1,3 +1,23 @@
+/*******************************************************************************
+********************************************************************************
+**                                                                            **
+**  Copyright (c) 2012 Catch.com, Inc.                                        **
+**                                                                            **
+**  Licensed under the Apache License, Version 2.0 (the "License");           **
+**  you may not use this file except in compliance with the License.          **
+**  You may obtain a copy of the License at                                   **
+**                                                                            **
+**      http://www.apache.org/licenses/LICENSE-2.0                            **
+**                                                                            **
+**  Unless required by applicable law or agreed to in writing, software       **
+**  distributed under the License is distributed on an "AS IS" BASIS,         **
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  **
+**  See the License for the specific language governing permissions and       **
+**  limitations under the License.                                            **
+**                                                                            **
+********************************************************************************
+*******************************************************************************/
+
 goog.provide('ClosureWidget.Formalize');
 
 goog.require('$');
@@ -83,25 +103,31 @@ ClosureWidget.Formalize.prototype.canDecorate = function(el) {
 /**
  * @param {string} name of input to validate for.
  * @param {Function} fn to validate.
+ * @param {Object=} opt_handler
  */
-ClosureWidget.Formalize.prototype.addValidation = function(name, fn) {
-  this.validation[name] = fn;
+ClosureWidget.Formalize.prototype.addValidation = function(
+    name, fn, opt_handler) {
+  this.validation[name] = goog.bind(fn, opt_handler || this);
 };
 
 
 /**
  * @param {Function} submitFn function to run on submit.
+ * @param {Object=} opt_handler
  */
-ClosureWidget.Formalize.prototype.submitFunction = function(submitFn, opt_handler) {
-  this.submitFn = goog.bind(submitFn, opt_handler);
+ClosureWidget.Formalize.prototype.submitFunction = function(
+    submitFn, opt_handler) {
+  this.submitFn = goog.bind(submitFn, opt_handler || this);
 };
 
 
 /**
  * @param {Function} fn to handle when a field doesn't validate.
+ * @param {Object=} opt_handler
  */
-ClosureWidget.Formalize.prototype.handleError = function(fn) {
-  this.handleErr = fn;
+ClosureWidget.Formalize.prototype.handleError = function(
+    fn, opt_handler) {
+  this.handleErr = goog.bind(fn, opt_handler || this);
 };
 
 
@@ -145,6 +171,8 @@ ClosureWidget.Formalize.prototype.onSubmit_ = function(e) {
 ClosureWidget.Formalize.prototype.setupPlaceholders = function() {
   this.textFields.each(function(el) {
     var $el = $(el);
+    if (!$el.attr('placeholder'))
+      return;
     $el.addClass(goog.getCssName('placeholder'));
     $el.val($el.attr('placeholder'));
     $el.focus(function() {

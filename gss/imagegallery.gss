@@ -1,9 +1,29 @@
+/*******************************************************************************
+********************************************************************************
+**                                                                            **
+**  Copyright (c) 2012 Catch.com, Inc.                                        **
+**                                                                            **
+**  Licensed under the Apache License, Version 2.0 (the "License");           **
+**  you may not use this file except in compliance with the License.          **
+**  You may obtain a copy of the License at                                   **
+**                                                                            **
+**      http://www.apache.org/licenses/LICENSE-2.0                            **
+**                                                                            **
+**  Unless required by applicable law or agreed to in writing, software       **
+**  distributed under the License is distributed on an "AS IS" BASIS,         **
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  **
+**  See the License for the specific language governing permissions and       **
+**  limitations under the License.                                            **
+**                                                                            **
+********************************************************************************
+*******************************************************************************/
+
 @def CW_IMAGEGALLERY_MAIN_WIDTH    600px;
 @def CW_IMAGEGALLERY_MAIN_HEIGHT   400px;
-@def CW_IMAGEGALLERY_PADDING       10px;
-@def CW_IMAGEGALLERY_SMALL         32px;
-@def CW_IMAGEGALLERY_SMALL_MARGIN  5px;
-@def CW_IMAGEGALLERY_BAR_HEIGHT    60px;
+@def CW_IMAGEGALLERY_PADDING       12px;
+@def CW_IMAGEGALLERY_SMALL         48px;
+@def CW_IMAGEGALLERY_SMALL_MARGIN  6px;
+@def CW_IMAGEGALLERY_BAR_HEIGHT    72px;
 
 .cw-imagegallery {
   width: add(CW_IMAGEGALLERY_PADDING,
@@ -83,7 +103,9 @@
 }
 .cw-imagegallery-small {
   @mixin transition(all 0.4s ease-out);
+  cursor: pointer;
 }
+.cw-imagegallery-small.active,
 .cw-imagegallery-small.hover {
   -webkit-transform: scale(1.5);
   -moz-transform: scale(1.5);
@@ -92,5 +114,5 @@
   @mixin transition(all 0.5s ease-out);
 }
 .cw-imagegallery-medium {
-  @mixin transition(all 0.7s linear);
+  @mixin transition(all 0.5s linear);
 }

@@ -18,14 +18,16 @@
 ********************************************************************************
 *******************************************************************************/
 
-{namespace ClosureWidget.Templates.Formalize}
-
-
-/**
- * @param message
- */
-{template .errorMessage}
-	<div class='{css cw-error}'>
-		<div class='{css cw-close}'>X</div><span class="{css cw-message}">{$message}</span>
-	</div>
-{/template}
+.cw-helper {
+  color: #555;
+  padding: 3px;
+  margin-top: 10px;
+  position: absolute;
+  z-index: 9999;
+  font-size: 12px;
+  box-shadow: #555 0 0 2px;
+  -moz-box-shadow: #555 0 0 2px;
+  -webkit-box-shadow: #555 0 0 2px;
+  background: #FFFBD8;
+  white-space: nowrap;
+}
