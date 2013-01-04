@@ -77,6 +77,8 @@ ClosureWidget.Formalize.prototype.enterDocument = function() {
     return $(el).attr('type') == 'text';
   }).add($('textarea'), this.getElement());
 
+  this.selects = $('select');
+
   // setup placehodlers if IE
   if (goog.userAgent.IE)
     this.setupPlaceholders();
@@ -141,7 +143,7 @@ ClosureWidget.Formalize.prototype.onSubmit_ = function(e) {
   $$.off(this.errorHandlers_);
   this.errorHandlers_ = [];
   $(this.messageDiv).empty();
-  this.textFields.each(function(el) {
+  this.textFields.add(this.selects).each(function(el) {
     var $el = $(el);
     var err = {input: el};
     if (this.validation[$el.attr('name')]) 
@@ -153,15 +155,29 @@ ClosureWidget.Formalize.prototype.onSubmit_ = function(e) {
     }
   }, this);
   if (validate && this.submitFn) {
-    this.submitFn(goog.array.reduce(this.textFields, function(obj, field) {
+    var values = {};
+    var getVal = function(obj, field) {
       obj[$(field).attr('name')] = $(field).val();
       return obj;
-    }, {}));
+    };
+    goog.array.reduce(this.textFields, getVal, values);
+    goog.array.reduce(this.selects, getVal, values);
+    this.submitFn(values);
   }
   e.preventDefault();
   e.stopPropagation();
   return false;
 
+};
+
+
+ClosureWidget.Formalize.prototype.reset = function() {
+  $$.off(this.errorHandlers_);
+  this.errorHandlers_ = [];
+  $(this.messageDiv).empty();
+  this.textFields
+      .val('')
+      .removeClass(goog.getCssName('invalid'));
 };
 
 

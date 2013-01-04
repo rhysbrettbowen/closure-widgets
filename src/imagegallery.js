@@ -194,7 +194,7 @@ ClosureWidget.ImageGallery.prototype.showImages = function(opt_ind) {
 ClosureWidget.ImageGallery.prototype.scrollToIndex = function(index) {
   if (!this.images.length)
     return;
-  if (index >= this.images.length) {
+  if (index >= this.images.length || index < 0) {
     index = 0;
   }
   ClosureWidget.ImageGallery.Sizes.MAIN_WIDTH = this.gallery.width();

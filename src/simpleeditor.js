@@ -48,87 +48,87 @@ ClosureWidget.SimpleEditor = function(opt_options) {
   goog.object.extend(this.options_, opt_options || {});
 
   /**
-   * the current text.
-   * @private
-   * @type {string}
-   */
+ * the current text.
+ * @private
+ * @type {string}
+ */
   this.text_ = this.options_.text || '';
 
   /**
-   * the test as of last save.
-   * @private
-   * @type {string}
-   */
+ * the test as of last save.
+ * @private
+ * @type {string}
+ */
   this.lastSave_ = this.text_;
 
   /**
-   * the prefix for css clasnames.
-   * @private
-   * @type {string}
-   */
+ * the prefix for css clasnames.
+ * @private
+ * @type {string}
+ */
   this.cssPrefix_ = this.options_.cssPrefix ?
       this.options_.cssPrefix + '-' :
       '';
 
   /**
-   * handle of the next change.
-   * @private
-   */
+ * handle of the next change.
+ * @private
+ */
   this.changeHandler_ = null;
 
   this.justOpened_ = false;
 
   /**
-   * whether the text area is focused.
-   * @private
-   * @type {boolean}
-   */
+ * whether the text area is focused.
+ * @private
+ * @type {boolean}
+ */
   this.focused_ = false;
 
   this.blurListen_ = null;
 
   /**
-   * autosaving
-   * @private
-   */
+ * autosaving
+ * @private
+ */
   this.autosave_ = new goog.async.Delay(
       this.save, this.options_.autosaveTime, this);
 
   /**
-   * The height of the text area
-   * @type {number}
-   */
+ * The height of the text area
+ * @type {number}
+ */
   this.editorHeight = 0;
 
   /**
-   * if the text is savable.
-   * @private
-   * @type {boolean}
-   */
+ * if the text is savable.
+ * @private
+ * @type {boolean}
+ */
   this.canSave_ = false;
 
   /**
-   * if the text is editable.
-   * @private
-   * @type {boolean}
-   */
+ * if the text is editable.
+ * @private
+ * @type {boolean}
+ */
   this.editable_ = false;
 
   /**
-   * the index of the selection.
-   * @private
-   * @type {Object}
-   */
+ * the index of the selection.
+ * @private
+ * @type {Object}
+ */
   this.index_ = {
     start: 0,
     end: 0
   };
 
   /**
-   * The width of the textarea.
-   * @private
-   * @type {number}
-   */
+ * The width of the textarea.
+ * @private
+ * @type {number}
+ */
   this.width_ = 0;
 
   this.registered_ = [];
@@ -136,10 +136,10 @@ ClosureWidget.SimpleEditor = function(opt_options) {
   this.textHeight_ = $('<div>')
       .css({
         'position': 'absolute',
-        'left': '0',
+        'left': '-10000px',
         'box-sizing': 'border-box',
         'top': '-10000px',
-        'border': 0,
+        'border': '1px solid #000',
         'white-space': 'pre-wrap',
         'word-wrap': 'break-word'
       });
@@ -191,7 +191,16 @@ ClosureWidget.SimpleEditor.prototype.enterDocument = function() {
 
   this.wrapper.click(this.handleClick_, this, this.getHandler());
 
-  this.textHeight_.css('padding', this.textArea.css('padding'));
+  if (goog.userAgent.GECKO) {
+    this.textHeight_.css({
+      'padding-top': this.textArea.css('padding-top'),
+      'padding-bottom': this.textArea.css('padding-bottom'),
+      'padding-left': this.textArea.css('padding-left'),
+      'padding-right': this.textArea.css('padding-right')
+    });
+  } else {
+    this.textHeight_.css('padding', this.textArea.css('padding'));
+  }
 
 
   this.textArea.focus(this.onFocus_, this, this.getHandler());
@@ -213,7 +222,8 @@ ClosureWidget.SimpleEditor.prototype.onFocus_ = function() {
   this.focused_ = true;
   if (!this.blurListen_)
     this.blurListen_ = 
-        $(document.body).click(this.outClick_, this, this.getHandler());
+        $(document).on(goog.events.EventType.CLICK, this.outClick_, this,
+            this.getHandler(), !goog.userAgent.IE);
   this.changeHandler_ = $$.wait(this.handleChange_, 200, this);
 };
 
@@ -275,10 +285,10 @@ ClosureWidget.SimpleEditor.prototype.handleChange_ = function() {
 /**
  * handles a click.
  */
-ClosureWidget.SimpleEditor.prototype.handleClick_ = function() {
+ClosureWidget.SimpleEditor.prototype.handleClick_ = function(e) {
   
   var r = goog.dom.Range.createFromWindow();
-  if (r && r.getStartOffset() != r.getEndOffset()) {
+  if (r && r.getEndOffset() - r.getStartOffset() > 1) {
     return;
   }
 
@@ -294,6 +304,8 @@ ClosureWidget.SimpleEditor.prototype.resizeTextArea = function() {
   this.textHeight_.text(this.text_.replace(/\r/g, ''));
   this.textHeight_.width(this.width_);
   var newHeight = this.textHeight_.height();
+  if (!this.text_.length || this.text_.charAt(this.text_.length - 1) == '\n')
+    newHeight += parseFloat(this.textArea.css('line-height'));
   if (newHeight != this.editorHeight) {
     this.editorHeight = newHeight;
     this.textArea.height(newHeight + this.options_.textPadding);
@@ -340,7 +352,10 @@ ClosureWidget.SimpleEditor.prototype.makeEditable = function() {
   this.resizeTextArea();
   this.textArea.show();
   this.handleChange_();
+  $$.wait(function() {
   this.textArea[0].focus();
+  this.setInputSelection(0, 0);
+}, 10, this);
   this.editable_ = true;
   this.justOpened_ = true;
   $$.wait(function(){this.justOpened_ = false;}, 20, this);

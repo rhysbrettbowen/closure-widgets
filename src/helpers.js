@@ -36,7 +36,7 @@ ClosureWidget.Helpers = function() {
   this.mouseout = null;
   this.running = false;
   this.$el = $('<div>')
-      .addClass('cw-helper');
+      .addClass(goog.getCssName('cw-helper'));
   this.$el.appendTo(document.body);
   this.timer = null;
   this.currEl = null;
@@ -103,6 +103,12 @@ ClosureWidget.Helpers.prototype.onMouseOver_ = function(e) {
   this.timer = goog.Timer.callOnce(function() {
     this.popup_.setVisible(true);
     this.timer = null;
+    var l = goog.events.listen(document.body, 'mousemove', function() {
+      if (!this.currEl || !goog.dom.contains(document.body, this.currEl)) {
+        goog.events.unlistenByKey(l);
+        this.reset();
+      }
+    }, false, this);
   }, 1000, this);
 
 };
@@ -111,6 +117,10 @@ ClosureWidget.Helpers.prototype.onMouseOut_ = function(e) {
   if(e.target != this.currEl)
     return;
 
+  this.reset();
+};
+
+ClosureWidget.Helpers.prototype.reset = function() {
   goog.Timer.clear(this.timer);
   this.timer = null;
   this.popup_.setVisible(false);
